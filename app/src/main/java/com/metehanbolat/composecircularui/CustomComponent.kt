@@ -1,11 +1,11 @@
 package com.metehanbolat.composecircularui
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.MaterialTheme
@@ -26,35 +26,38 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.metehanbolat.composecircularui.ui.theme.Green
 
 @Composable
 fun CustomComponent(
-    canvasSize: Dp = 300.dp,
+    canvasSize: Dp = 150.dp,
     indicatorValue: Int = 0,
     maxIndicatorValue: Int = 100,
     backgroundIndicatorColor: Color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f),
-    backgroundIndicatorStrokeWidth: Float = 100f,
-    foregroundIndicatorColor: Color = MaterialTheme.colors.primary,
-    foregroundIndicatorStrokeWidth: Float = 100f,
-    bigTextFontSize: TextUnit = MaterialTheme.typography.h3.fontSize,
+    backgroundIndicatorStrokeWidth: Float = 40f,
+    foregroundIndicatorColor: Color = Green,
+    foregroundIndicatorStrokeWidth: Float = 40f,
+    bigTextFontSize: TextUnit = 13.sp,
     bigTextColor: Color = MaterialTheme.colors.onSurface,
-    bigTextSuffix: String = "GB",
-    smallText: String = "Remaining",
-    smallTextFontSize: TextUnit = MaterialTheme.typography.h6.fontSize,
-    smallTextColor: Color = MaterialTheme.colors.onSurface.copy(alpha = 0.3f)
+    bigTextSuffix: String = "/$maxIndicatorValue",
+    smallText: String = "Ödenen / Toplam",
+    smallTextFontSize: TextUnit = 11.sp,
+    smallTextColor: Color = MaterialTheme.colors.onSurface.copy(alpha = 0.3f),
+    modifier: Modifier = Modifier
 ) {
     var allowedIndicatorValue by remember {
         mutableStateOf(maxIndicatorValue)
     }
 
-    allowedIndicatorValue = if (indicatorValue <= maxIndicatorValue){
+    allowedIndicatorValue = if (indicatorValue <= maxIndicatorValue) {
         indicatorValue
-    }else{
+    } else {
         maxIndicatorValue
     }
 
     var animatedIndicatorValue by remember { mutableStateOf(0f) }
-    LaunchedEffect(key1 = allowedIndicatorValue){
+    LaunchedEffect(key1 = allowedIndicatorValue) {
         animatedIndicatorValue = allowedIndicatorValue.toFloat()
     }
     val percentage = (animatedIndicatorValue / maxIndicatorValue) * 100
@@ -67,51 +70,53 @@ fun CustomComponent(
         animationSpec = tween(1000)
     )
     val animatedBigTextColor by animateColorAsState(
-        targetValue = if (allowedIndicatorValue == 0){
+        targetValue = if (allowedIndicatorValue == 0) {
             MaterialTheme.colors.onSurface.copy(alpha = 0.3f)
-        }else{
+        } else {
             bigTextColor
         },
         animationSpec = tween(1500)
     )
-    
-    Column(
-        modifier = Modifier
-            .size(canvasSize)
-            .drawBehind {
-                val componentSize = size / 1.25f
-                backgroundIndicator(
-                    componentSize = componentSize,
-                    indicatorColor = backgroundIndicatorColor,
-                    indicatorStrokeWidth = backgroundIndicatorStrokeWidth
-                )
-                foregroundIndicator(
-                    sweepAngle = sweepAngle,
-                    componentSize = componentSize,
-                    indicatorColor = foregroundIndicatorColor,
-                    indicatorStrokeWidth = foregroundIndicatorStrokeWidth
-                )
-            },
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        EmbeddedElements(
-            bigText = receivedValue,
-            bigTextFontSize = bigTextFontSize,
-            bigTextColor = animatedBigTextColor,
-            bigTextSuffix = bigTextSuffix,
-            smallText = smallText,
-            smallTextColor = smallTextColor,
-            smallTextFontSize = smallTextFontSize
-        )
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        Column(
+            modifier = Modifier
+                .size(canvasSize)
+                .drawBehind {
+                    val componentSize = size / 1.25f
+                    backgroundIndicator(
+                        componentSize = componentSize,
+                        indicatorColor = backgroundIndicatorColor,
+                        indicatorStrokeWidth = backgroundIndicatorStrokeWidth
+                    )
+                    foregroundIndicator(
+                        sweepAngle = sweepAngle,
+                        componentSize = componentSize,
+                        indicatorColor = foregroundIndicatorColor,
+                        indicatorStrokeWidth = foregroundIndicatorStrokeWidth
+                    )
+                },
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            EmbeddedElements(
+                bigText = receivedValue,
+                bigTextFontSize = bigTextFontSize,
+                bigTextColor = animatedBigTextColor,
+                bigTextSuffix = bigTextSuffix,
+                smallText = smallText,
+                smallTextColor = smallTextColor,
+                smallTextFontSize = smallTextFontSize
+            )
+        }
     }
+
 }
 
 fun DrawScope.backgroundIndicator(
     componentSize: Size,
     indicatorColor: Color,
     indicatorStrokeWidth: Float
-){
+) {
     drawArc(
         size = componentSize,
         color = indicatorColor,
@@ -134,7 +139,7 @@ fun DrawScope.foregroundIndicator(
     componentSize: Size,
     indicatorColor: Color,
     indicatorStrokeWidth: Float
-){
+) {
     drawArc(
         size = componentSize,
         color = indicatorColor,
@@ -169,7 +174,7 @@ fun EmbeddedElements(
         textAlign = TextAlign.Center
     )
     Text(
-        text = "$bigText ${bigTextSuffix.take(2)}",
+        text = "$bigText${bigTextSuffix.take(4)}",
         color = bigTextColor,
         fontSize = bigTextFontSize,
         textAlign = TextAlign.Center,
@@ -180,5 +185,5 @@ fun EmbeddedElements(
 @Preview(showBackground = true)
 @Composable
 fun CustomComponentPreview() {
-     CustomComponent()
+    CustomComponent()
 }
